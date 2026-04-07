@@ -1,60 +1,150 @@
 # Log Monitoring & Incident Detection System
 
-This project simulates a production-like DevOps / SRE system. It consists of a simple FastAPI application that exposes endpoints, generates controlled HTTP 500 errors, and provides Prometheus metrics. The application is containerized with Docker, deployed to Kubernetes, and monitored using Prometheus with alerting based on error spikes.
+This project simulates a production-like DevOps / SRE environment. It includes a FastAPI application, Docker containerization, Kubernetes deployment, Prometheus monitoring, Grafana dashboards, and alerting based on HTTP 500 errors.
 
-The system allows you to simulate incidents, observe metrics, trigger alerts, and follow a basic operational workflow similar to real-world environments.
+The goal is to demonstrate a full monitoring workflow: deploy → generate errors → observe metrics → trigger alert → visualize in Grafana.
 
-The application exposes three main endpoints:
-- /health – health check endpoint
-- /error – generates HTTP 500 responses based on probability
-- /metrics – exposes Prometheus metrics
+---
 
-The application is deployed to Kubernetes using Deployment and Service resources. Prometheus is configured via ConfigMap and scrapes the application metrics. An alert is defined to detect high error rates.
+## Requirements
 
-To build and deploy the application:
+- Docker Desktop (with Kubernetes enabled)
+- kubectl
+- Git
 
-docker build -t sre-demo:local .
-kubectl apply -f k8s/
-kubectl get pods -n sre-demo
-kubectl get svc -n sre-demo
+Check setup:
 
-To access the application locally:
+docker ps  
+kubectl get nodes  
 
-kubectl port-forward -n sre-demo svc/sre-demo-service 8000:80
+---
 
-Then test:
+## Clone project
 
-curl http://localhost:8000/health
+git clone https://github.com/wojtek93/sre-monitoring-system.git  
+cd sre-monitoring-system  
 
-To access Prometheus:
+---
 
-kubectl port-forward -n sre-demo svc/prometheus 9090:9090
+## Build Docker image
 
-Open in browser:
-http://localhost:9090
+docker build -t sre-demo:local .  
 
-To simulate an incident (generate HTTP 500 errors):
+---
 
-seq 20 | xargs -I{} curl -s http://localhost:8000/error?rate=100 > /dev/null
+## Deploy to Kubernetes
 
-To verify metrics:
+kubectl apply -f k8s/  
 
-curl -s http://localhost:8000/metrics | grep http_requests_total
+Check status:
 
-Prometheus alert is triggered when the number of HTTP 500 responses exceeds a threshold:
+kubectl get pods -n sre-demo  
+kubectl get svc -n sre-demo  
 
-http_requests_total{path="/error",status="500"} > 10
+Wait until all pods are **Running**
 
-To check alert status:
-- open Prometheus
-- go to Alerts tab
-- find HighErrorRate
-- status should become FIRING
+---
 
-Runbook for incident handling is available in:
-docs/runbook.md
+## Access application
 
-Technology used:
-Python (FastAPI), Docker, Kubernetes, Prometheus
+kubectl port-forward -n sre-demo svc/sre-demo-service 8000:80  
 
-This project demonstrates practical skills in monitoring, alerting, incident simulation, Kubernetes deployment, and troubleshooting in a production-like environment.
+Test:
+
+curl http://localhost:8000/health  
+
+---
+
+## Access Prometheus
+
+kubectl port-forward -n sre-demo svc/prometheus 9090:9090  
+
+Open:
+
+http://localhost:9090  
+
+---
+
+## Access Grafana
+
+kubectl port-forward -n sre-demo svc/grafana 3000:3000  
+
+Open:
+
+http://localhost:3000  
+
+Login:
+
+admin / admin  
+
+---
+
+## Load dashboard
+
+1. Go to **Dashboards**
+2. Click **Import**
+3. Upload file:
+
+k8s/grafana-dashboard.json  
+
+4. Select Prometheus as data source  
+5. Click Import  
+
+---
+
+## Simulate incident
+
+Run in new terminal:
+
+seq 20 | xargs -I{} curl -s http://localhost:8000/error?rate=100 > /dev/null  
+
+---
+
+## Verify metrics
+
+curl -s http://localhost:8000/metrics | grep http_requests_total  
+
+---
+
+## Check alert
+
+In Prometheus:
+
+1. Go to **Alerts**
+2. Find: HighErrorRate
+3. Status should be: FIRING  
+
+---
+
+## Observe dashboard
+
+In Grafana dashboard you should see:
+
+- request count increasing  
+- HTTP 500 errors spike  
+- metrics updating in real time  
+
+---
+
+## Runbook
+
+See:
+
+docs/runbook.md  
+
+---
+
+## Tech stack
+
+FastAPI, Docker, Kubernetes, Prometheus, Grafana, GitHub Actions  
+
+---
+
+## What this demonstrates
+
+- containerized application deployment  
+- Kubernetes-based system  
+- metrics collection and monitoring  
+- alerting based on error rate  
+- dashboard-based observability  
+- basic incident response workflow  
