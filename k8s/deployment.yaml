@@ -4,7 +4,7 @@ metadata:
   name: sre-demo
   namespace: sre-demo
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: sre-demo

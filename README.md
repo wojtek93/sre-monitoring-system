@@ -82,11 +82,32 @@ curl http://localhost:8000/health
 
 kubectl port-forward -n sre-demo svc/prometheus 9090:9090  
 
-Open:
-
-http://localhost:9090  
-
 ---
+
+## Prometheus integration
+
+Prometheus scrapes metrics directly from the FastAPI application using the `/metrics` endpoint.
+
+The application exposes metrics on port `8000`, and Prometheus is configured to collect them from the application service.
+
+Example scrape flow:
+
+FastAPI app -> /metrics endpoint -> Prometheus scrape -> alert evaluation -> Grafana dashboard
+
+To verify that Prometheus is connected correctly:
+
+1. Open Prometheus:
+   http://localhost:9090
+
+2. Go to:
+   Status -> Targets
+
+3. Check that the application target is in `UP` state
+
+4. Query example:
+   http_requests_total
+
+If the target is `UP`, Prometheus is successfully scraping application metrics.
 
 ## Access Grafana
 
@@ -100,6 +121,48 @@ Login:
 
 admin / admin  
 
+--- 
+## Prometheus scrape configuration
+
+Prometheus is configured to scrape the application metrics endpoint.
+
+Example target:
+
+- application service on port `8000`
+- metrics path: `/metrics`
+
+The scrape configuration is defined in:
+
+`k8s/prometheus.yaml`
+or
+`monitoring/prometheus/prometheus.yml`
+
+---
+## Configure Grafana data source
+
+1. Open Grafana:
+   http://localhost:3000
+
+2. Login:
+   admin / admin
+
+3. Go to:
+   Connections → Data Sources
+
+4. Click:
+   Add data source
+
+5. Select:
+   Prometheus
+
+6. In URL field enter:
+   http://prometheus:9090
+
+7. Click:
+   Save & Test
+
+If the connection is successful, Grafana is now connected to Prometheus.
+
 ---
 
 ## Load dashboard
@@ -108,7 +171,7 @@ admin / admin
 2. Click **Import**
 3. Upload file:
 
-k8s/grafana-dashboard.json  
+monitoring/grafana/grafana-dashboard.json  
 
 4. Select Prometheus as data source  
 5. Click Import  
