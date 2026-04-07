@@ -1,8 +1,22 @@
 # Log Monitoring & Incident Detection System
 
-This project simulates a production-like DevOps / SRE environment. It includes a FastAPI application, Docker containerization, Kubernetes deployment, Prometheus monitoring, Grafana dashboards, and alerting based on HTTP 500 errors.
+This project demonstrates a production-oriented DevOps / SRE system with monitoring, alerting and incident response workflow. It includes a FastAPI application, Docker containerization, Kubernetes deployment, Prometheus monitoring, Grafana dashboards, and alerting based on HTTP 500 errors.
 
 The goal is to demonstrate a full monitoring workflow: deploy → generate errors → observe metrics → trigger alert → visualize in Grafana.
+
+---
+## Architecture
+
+The system consists of:
+
+- FastAPI application exposing HTTP endpoints (/health, /error, /metrics)
+- Kubernetes Deployment managing application replicas
+- Prometheus scraping metrics from the application
+- Alert rules detecting HTTP 500 error spikes
+- Grafana dashboards visualizing system metrics and errors
+
+Data flow:
+Application → Prometheus → Alerting → Grafana
 
 ---
 
@@ -16,6 +30,18 @@ Check setup:
 
 docker ps  
 kubectl get nodes  
+
+---
+
+## CI/CD
+
+The project includes a GitHub Actions pipeline that:
+
+- builds Docker image on push
+- validates application build process
+- prepares image for deployment
+
+This simulates a basic CI workflow used in production environments.
 
 ---
 
@@ -41,7 +67,7 @@ Check status:
 kubectl get pods -n sre-demo  
 kubectl get svc -n sre-demo  
 
-Wait until all pods are **Running**
+Wait until all pods are in **Running** state
 
 ---
 
@@ -123,6 +149,21 @@ In Grafana dashboard you should see:
 - request count increasing  
 - HTTP 500 errors spike  
 - metrics updating in real time  
+
+---
+
+## Troubleshooting
+
+If pods are not running:
+
+kubectl get pods -n sre-demo
+kubectl describe pod <pod-name> -n sre-demo
+kubectl logs -n sre-demo <pod-name>
+
+If service is not accessible:
+
+kubectl get svc -n sre-demo
+kubectl port-forward -n sre-demo svc/sre-demo-service 8000:80
 
 ---
 
