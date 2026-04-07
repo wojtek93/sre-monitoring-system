@@ -19,6 +19,15 @@ Data flow:
 Application → Prometheus → Alerting → Grafana
 
 ---
+## Project structure
+
+
+k8s/                   # Kubernetes manifests (deployments, services, configs)
+app/                   # FastAPI application
+monitoring/grafana/    # Grafana dashboards (not applied via kubectl)
+docs/                  # runbook and documentation
+
+---
 
 ## Requirements
 
@@ -30,18 +39,6 @@ Check setup:
 
 docker ps  
 kubectl get nodes  
-
----
-
-## CI/CD
-
-The project includes a GitHub Actions pipeline that:
-
-- builds Docker image on push
-- validates application build process
-- prepares image for deployment
-
-This simulates a basic CI workflow used in production environments.
 
 ---
 
@@ -189,3 +186,17 @@ FastAPI, Docker, Kubernetes, Prometheus, Grafana, GitHub Actions
 - alerting based on error rate  
 - dashboard-based observability  
 - basic incident response workflow  
+
+---
+
+## CI/CD
+
+The project includes a GitHub Actions pipeline that:
+
+- builds Docker image on push
+- validates application build process
+- prepares image for deployment
+
+This simulates a basic CI workflow used in production environments.
+
+---
